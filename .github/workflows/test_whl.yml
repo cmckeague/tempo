@@ -17,9 +17,9 @@ jobs:
         uses: actions/setup-python@v2
 
       - name: Build wheel
-        run: cd python && python setup.py bdist_wheel
+        run: python .python/setup.py bdist_wheel
 
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
-          path: .python/dist/*.whl
+          path: .dist/*.whl
