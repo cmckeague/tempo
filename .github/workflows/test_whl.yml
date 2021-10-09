@@ -1,0 +1,57 @@
+# Workflow to build and test wheels
+name: Wheel builder
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # Check whether to build the wheels and the source tarball
+  check_build_trigger:
+    name: Check build trigger
+    runs-on: ubuntu-latest
+    if: github.repository == 'cmckeague/tempo'
+    outputs:
+      build: ${{ steps.check_build_trigger.outputs.build }}
+
+    steps:
+      - name: Checkout tempo
+        uses: actions/checkout@v2
+
+  # Build the wheels for Linux, Windows and macOS for Python 3.7 and newer
+  build_wheels:
+    name: Build wheel for cp${{ matrix.python }}-${{ matrix.platform_id }}-${{ matrix.manylinux_image }}
+    runs-on: ${{ matrix.os }}
+    needs: check_build_trigger
+    if: needs.check_build_trigger.outputs.build
+
+    strategy:
+      # Ensure that a wheel builder finishes even if another fails
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: [37, 38, 39]
+        bitness: [64]
+        manylinux_image: [manylinux2010]
+        include:
+          - os: ubuntu-latest
+            bitness: 64
+            platform_id: manylinux_x86_64
+
+    steps:
+      - name: Checkout tempo
+        uses: actions/checkout@v1
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Build and test wheels
+        env:
+          #CONFTEST_PATH: ${{ github.workspace }}/conftest.py
+          #CONFTEST_NAME: conftest.py
+
+        run: python python/setup.py bdist_wheel
+
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: python/dist/*.whl
