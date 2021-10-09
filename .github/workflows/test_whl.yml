@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python: 38
+        python: [38]
         bitness: [64]
         manylinux_image: [manylinux2010]
         include:
