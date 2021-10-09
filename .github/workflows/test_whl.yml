@@ -34,6 +34,7 @@ jobs:
         env: 
           CIBW_BUILD:  cp${{ matrix.python }}-${{ matrix.platform_id }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ matrix.manylinux_image }}
+          CIBW_BEFORE_BUILD: cd ./python/
         run: python -m cibuildwheel --output-dir wheelhouse
 
       - name: Store artifacts
